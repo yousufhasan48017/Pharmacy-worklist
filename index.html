@@ -5,305 +5,790 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Indus Hospital — Pharmacy Worklist</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #ffffff; --bg2: #f5f5f3; --bg3: #efefec;
-    --text: #1a1a18; --text2: #6b6b66; --text3: #9a9a94;
-    --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.2);
-    --info-bg: #e6f1fb; --info-text: #185fa5; --info-border: rgba(24,95,165,0.3);
-    --success-bg: #eaf3de; --success-text: #3b6d11; --success-border: rgba(59,109,17,0.3);
-    --warn-bg: #faeeda; --warn-text: #854f0b; --warn-border: rgba(133,79,11,0.3);
-    --danger-bg: #fcebeb; --danger-text: #a32d2d; --danger-border: rgba(163,45,45,0.3);
-    --radius: 8px; --radius-lg: 12px;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1c1c1a; --bg2: #252522; --bg3: #2e2e2b;
-      --text: #f0f0ec; --text2: #9a9a94; --text3: #6b6b66;
-      --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.18);
-      --info-bg: #042c53; --info-text: #85b7eb; --info-border: rgba(133,183,235,0.25);
-      --success-bg: #173404; --success-text: #97c459; --success-border: rgba(151,196,89,0.25);
-      --warn-bg: #412402; --warn-text: #ef9f27; --warn-border: rgba(239,159,39,0.25);
-      --danger-bg: #501313; --danger-text: #f09595; --danger-border: rgba(240,149,149,0.25);
-    }
-  }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; }
-  .page { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
-  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 0.5px solid var(--border); background: var(--bg); border-radius: var(--radius-lg); padding: 1.2rem 1.5rem; margin-bottom: 1rem; }
-  .brand { display: flex; align-items: center; gap: 12px; }
-  .brand-logo { width: 42px; height: 42px; border-radius: 10px; background: var(--info-bg); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; color: var(--info-text); letter-spacing: -0.5px; }
-  .brand-name { font-size: 16px; font-weight: 600; color: var(--text); }
-  .brand-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
-  .shift-info { text-align: right; font-size: 11px; color: var(--text2); line-height: 1.8; }
-  .live { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #639922; margin-right: 4px; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
-  .metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 1rem; }
-  .metric { background: var(--bg); border-radius: var(--radius); padding: .8rem 1rem; }
-  .metric-label { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
-  .metric-val { font-size: 26px; font-weight: 600; color: var(--text); }
-  .metric-val.warn { color: var(--warn-text); } .metric-val.danger { color: var(--danger-text); } .metric-val.success { color: var(--success-text); }
-  .card { background: var(--bg); border-radius: var(--radius-lg); padding: 1.2rem 1.5rem; margin-bottom: 1rem; }
-  .tabs { display: flex; gap: 2px; border-bottom: 0.5px solid var(--border); margin-bottom: 1.2rem; }
-  .tab { font-size: 13px; padding: 8px 16px; border: none; background: none; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -0.5px; border-radius: 0; transition: color .15s; }
-  .tab.active { color: var(--text); border-bottom: 2px solid var(--text); font-weight: 500; }
-  .tab:hover { color: var(--text); }
-  .panel { display: none; } .panel.active { display: block; }
-  .filter-row { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
-  .filter-row input, .filter-row select { font-size: 12px; padding: 6px 10px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg2); color: var(--text); outline: none; }
-  .filter-row input { flex: 1; } .filter-row input:focus { border-color: var(--info-text); }
-  .badge { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; white-space: nowrap; }
-  .b-stat { background: var(--warn-bg); color: var(--warn-text); }
-  .b-urgent { background: var(--danger-bg); color: var(--danger-text); }
-  .b-routine { background: var(--bg2); color: var(--text2); }
-  .b-done { background: var(--success-bg); color: var(--success-text); }
-  .b-prog { background: var(--info-bg); color: var(--info-text); }
-  .b-wait { background: var(--bg2); color: var(--text2); }
-  .avail-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
-  .av-in { background: var(--success-bg); color: var(--success-text); }
-  .av-low { background: var(--warn-bg); color: var(--warn-text); }
-  .av-out { background: var(--danger-bg); color: var(--danger-text); }
-  .avail-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
-  .avail-dot.in { background: #639922; } .avail-dot.low { background: #BA7517; } .avail-dot.out { background: #E24B4A; }
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 900px; }
-  th { text-align: left; font-size: 10px; font-weight: 500; color: var(--text2); text-transform: uppercase; letter-spacing: .05em; padding: 8px 10px; border-bottom: 0.5px solid var(--border); white-space: nowrap; }
-  td { padding: 9px 10px; border-bottom: 0.5px solid var(--border); color: var(--text); vertical-align: middle; }
-  tr:hover td { background: var(--bg2); }
-  .rx-id { font-family: monospace; font-size: 11px; color: var(--text2); }
-  .drug-name { font-weight: 500; } .drug-dose { font-size: 10px; color: var(--text2); margin-top: 1px; }
-  .qty-val { font-family: monospace; font-size: 12px; font-weight: 600; }
-  .staff-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .staff-card { border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.1rem; background: var(--bg2); }
-  .staff-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; margin-bottom: 10px; }
-  .av-p { background: var(--info-bg); color: var(--info-text); } .av-t { background: var(--success-bg); color: var(--success-text); } .av-i { background: var(--warn-bg); color: var(--warn-text); }
-  .staff-name { font-size: 13px; font-weight: 500; } .staff-role { font-size: 10px; color: var(--text2); margin-top: 1px; margin-bottom: 8px; }
-  .staff-status { font-size: 11px; display: flex; align-items: center; gap: 5px; color: var(--text2); }
-  .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-  .dot-on { background: #639922; } .dot-brk { background: #BA7517; } .dot-off { background: #888780; }
-  .staff-stats { margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--border); font-size: 10px; color: var(--text2); display: flex; gap: 12px; flex-wrap: wrap; }
-  .staff-stats span { font-weight: 500; color: var(--text); }
-  .task-list { display: flex; flex-direction: column; gap: 7px; }
-  .task-item { display: flex; align-items: flex-start; gap: 10px; border: 0.5px solid var(--border); border-radius: var(--radius); padding: 10px 12px; background: var(--bg2); }
-  .chk { width: 16px; height: 16px; border-radius: 3px; border: 1.5px solid var(--border2); flex-shrink: 0; margin-top: 1px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; }
-  .chk.done { background: var(--success-bg); border-color: transparent; }
-  .task-text { font-size: 13px; } .task-text.done-text { color: var(--text2); text-decoration: line-through; }
-  .task-meta { margin-top: 3px; font-size: 10px; color: var(--text2); }
-  .task-cat { display: inline-block; font-size: 9px; padding: 1px 6px; border-radius: 8px; background: var(--bg3); color: var(--text2); margin-right: 5px; }
-  .alert-list { display: flex; flex-direction: column; gap: 8px; }
-  .alert-item { display: flex; gap: 12px; align-items: flex-start; border-radius: var(--radius); padding: 10px 14px; border: 0.5px solid; }
-  .al-d { background: var(--danger-bg); border-color: var(--danger-border); }
-  .al-w { background: var(--warn-bg); border-color: var(--warn-border); }
-  .al-i { background: var(--info-bg); border-color: var(--info-border); }
-  .alert-title { font-size: 13px; font-weight: 500; }
-  .at-d { color: var(--danger-text); } .at-w { color: var(--warn-text); } .at-i { color: var(--info-text); }
-  .alert-body { font-size: 11px; color: var(--text2); margin-top: 2px; }
-  .sec-head { font-size: 10px; font-weight: 500; color: var(--text2); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 12px; }
-  .empty { text-align: center; padding: 2.5rem; color: var(--text2); font-size: 13px; }
-  .notif-badge { background: var(--danger-bg); color: var(--danger-text); border-radius: 8px; padding: 0 6px; font-size: 9px; margin-left: 4px; }
-  @media (max-width: 700px) {
-    .metrics { grid-template-columns: repeat(3, 1fr); }
-    .staff-grid { grid-template-columns: 1fr 1fr; }
-    .filter-row { flex-wrap: wrap; }
-  }
-  @media (max-width: 480px) {
-    .metrics { grid-template-columns: repeat(2, 1fr); }
-    .staff-grid { grid-template-columns: 1fr; }
-    .header { flex-direction: column; gap: 12px; }
-    .shift-info { text-align: left; }
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#fff;--bg2:#f5f5f3;--bg3:#efefec;--bg4:#e8e8e5;
+  --text:#1a1a18;--text2:#6b6b66;--text3:#b0b0aa;
+  --border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.16);
+  --stat:#a32d2d;--stat-bg:#fcebeb;--stat-border:rgba(163,45,45,0.2);
+  --urgent:#854f0b;--urgent-bg:#faeeda;--urgent-border:rgba(133,79,11,0.2);
+  --info:#185fa5;--info-bg:#e6f1fb;--info-border:rgba(24,95,165,0.2);
+  --success:#3b6d11;--success-bg:#eaf3de;--success-border:rgba(59,109,17,0.2);
+  --warn:#854f0b;--warn-bg:#faeeda;--warn-border:rgba(133,79,11,0.2);
+  --purple:#534ab7;--purple-bg:#eeedfe;
+  --r:8px;--rl:12px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1c1c1a;--bg2:#252522;--bg3:#2e2e2b;--bg4:#383835;
+  --text:#f0f0ec;--text2:#9a9a94;--text3:#5a5a56;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.16);
+  --stat-bg:#501313;--stat-border:rgba(240,149,149,0.15);
+  --urgent-bg:#412402;--urgent-border:rgba(239,159,39,0.15);
+  --info-bg:#042c53;--info-border:rgba(133,183,235,0.15);
+  --success-bg:#173404;--success-border:rgba(151,196,89,0.15);
+  --warn-bg:#412402;--warn-border:rgba(239,159,39,0.15);
+  --purple-bg:#26215c;
+}}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--text);min-height:100vh;font-size:13px;}
+.page{max-width:1200px;margin:0 auto;padding:1.1rem;}
+ 
+/* HEADER */
+.header{display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-radius:var(--rl);padding:.9rem 1.3rem;margin-bottom:.8rem;border:.5px solid var(--border);}
+.brand{display:flex;align-items:center;gap:10px;}
+.logo{width:38px;height:38px;border-radius:9px;background:var(--info-bg);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--info);flex-shrink:0;}
+.brand-name{font-size:14px;font-weight:600;}
+.brand-sub{font-size:11px;color:var(--text2);margin-top:1px;}
+.header-right{display:flex;align-items:center;gap:1rem;}
+.live-chip{display:flex;align-items:center;gap:6px;background:var(--success-bg);border:.5px solid var(--success-border);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:500;color:var(--success);}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#639922;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.shift-text{text-align:right;font-size:11px;color:var(--text2);line-height:1.7;}
+ 
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-bottom:.8rem;}
+.metric{background:var(--bg);border-radius:var(--r);padding:.65rem .9rem;border:.5px solid var(--border);position:relative;overflow:hidden;}
+.metric::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
+.metric.m-stat::before{background:var(--stat);}
+.metric.m-warn::before{background:var(--urgent);}
+.metric.m-info::before{background:var(--info);}
+.metric.m-success::before{background:var(--success);}
+.metric.m-ro::before{background:#7c3aed;}
+.m-label{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;}
+.m-val{font-size:22px;font-weight:700;color:var(--text);}
+.m-val.red{color:var(--stat);}
+.m-val.amber{color:var(--urgent);}
+.m-val.green{color:var(--success);}
+.m-val.blue{color:var(--info);}
+.m-val.purple{color:#7c3aed;}
+.m-sub{font-size:9px;color:var(--text3);margin-top:1px;}
+ 
+/* MAIN LAYOUT */
+.layout{display:grid;grid-template-columns:1fr;gap:.8rem;}
+ 
+/* CARD */
+.card{background:var(--bg);border-radius:var(--rl);border:.5px solid var(--border);overflow:hidden;}
+.card-head{padding:.85rem 1.3rem;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+.card-title{font-size:13px;font-weight:600;}
+.card-body{padding:1rem 1.3rem;}
+ 
+/* TABS */
+.tabs{display:flex;gap:0;background:var(--bg2);border-radius:var(--r);padding:3px;width:fit-content;}
+.tab{font-size:11px;padding:5px 13px;border:none;background:transparent;color:var(--text2);cursor:pointer;border-radius:6px;font-weight:500;transition:all .15s;white-space:nowrap;}
+.tab.active{background:var(--bg);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.tab:hover:not(.active){color:var(--text);}
+.nbadge{background:var(--stat-bg);color:var(--stat);border-radius:8px;padding:1px 5px;font-size:9px;margin-left:3px;font-weight:700;}
+ 
+/* FILTERS */
+.frow{display:flex;gap:7px;margin-bottom:1rem;flex-wrap:wrap;align-items:center;}
+.finput{font-size:12px;padding:6px 10px;border:.5px solid var(--border2);border-radius:var(--r);background:var(--bg2);color:var(--text);outline:none;transition:border-color .15s;}
+.finput:focus{border-color:var(--info);}
+.finput.search{flex:1;min-width:200px;}
+.panel{display:none;}.panel.active{display:block;}
+ 
+/* TABLE */
+.tw{overflow-x:auto;margin:0 -1.3rem;padding:0 1.3rem;}
+table{width:100%;border-collapse:collapse;min-width:900px;}
+th{text-align:left;font-size:9px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.07em;padding:6px 10px;border-bottom:.5px solid var(--border);white-space:nowrap;background:var(--bg);}
+td{padding:0;border-bottom:.5px solid var(--border);vertical-align:middle;}
+.td-inner{padding:9px 10px;display:flex;flex-direction:column;justify-content:center;}
+tr.row-stat td{background:rgba(163,45,45,0.03);}
+tr.row-stat td:first-child .td-inner{border-left:3px solid var(--stat);padding-left:7px;}
+tr.row-urgent td{background:rgba(133,79,11,0.03);}
+tr.row-urgent td:first-child .td-inner{border-left:3px solid var(--urgent);padding-left:7px;}
+tr.row-done td{opacity:.55;}
+tr:hover td{background:var(--bg2) !important;}
+tr:last-child td{border-bottom:none;}
+.rxid{font-family:monospace;font-size:10px;color:var(--text2);}
+.pt-name{font-weight:600;font-size:12px;}
+.pt-doc{font-size:10px;color:var(--text2);margin-top:1px;}
+.drug-name{font-weight:600;font-size:12px;}
+.drug-info{font-size:10px;color:var(--text2);margin-top:1px;}
+.dsup{display:inline-block;background:var(--purple-bg);color:var(--purple);border-radius:6px;font-size:9px;padding:1px 5px;font-weight:600;}
+.qty-block{display:flex;align-items:baseline;gap:3px;}
+.qty-num{font-family:monospace;font-size:13px;font-weight:700;}
+.qty-of{font-size:9px;color:var(--text3);}
+.qty-avail{font-family:monospace;font-size:11px;}
+ 
+/* STOCK */
+.sp{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;border-radius:8px;font-weight:500;}
+.sp-in{background:var(--success-bg);color:var(--success);}
+.sp-low{background:var(--urgent-bg);color:var(--urgent);}
+.sp-out{background:var(--stat-bg);color:var(--stat);}
+.sd{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.sd-in{background:#639922;}.sd-low{background:#BA7517;}.sd-out{background:#E24B4A;}
+ 
+/* WAIT TIME */
+.wait{font-size:11px;font-weight:600;}
+.wait-ok{color:var(--success);}
+.wait-warn{color:var(--urgent);}
+.wait-danger{color:var(--stat);}
+.wait-label{font-size:9px;color:var(--text2);}
+ 
+/* BADGES */
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:8px;font-weight:500;white-space:nowrap;}
+.b-stat{background:var(--stat-bg);color:var(--stat);}
+.b-urg{background:var(--urgent-bg);color:var(--urgent);}
+.b-rou{background:var(--bg2);color:var(--text2);}
+.b-dis{background:var(--success-bg);color:var(--success);}
+.b-prog{background:var(--info-bg);color:var(--info);}
+.b-wait{background:var(--bg2);color:var(--text2);}
+.b-part{background:var(--urgent-bg);color:var(--urgent);}
+.b-ro{background:var(--stat-bg);color:var(--stat);}
+ 
+/* ACTION BUTTONS */
+.act-wrap{display:flex;gap:4px;align-items:center;flex-wrap:wrap;}
+.btn{font-size:11px;padding:5px 11px;border-radius:6px;border:.5px solid;cursor:pointer;font-weight:500;transition:all .15s;white-space:nowrap;line-height:1;}
+.btn:hover{filter:brightness(.92);}
+.btn-dis{background:var(--info);color:#fff;border-color:var(--info);}
+.btn-ro{background:transparent;color:var(--stat);border-color:var(--stat-border);background:var(--stat-bg);}
+.btn-done-tag{font-size:10px;color:var(--success);font-weight:500;}
+.btn-ro-tag{font-size:10px;color:var(--stat);font-weight:500;}
+/* Modal btns */
+.mbtn{font-size:12px;padding:7px 16px;border-radius:7px;border:.5px solid;cursor:pointer;font-weight:500;transition:all .15s;}
+.mbtn:hover{filter:brightness(.92);}
+.mbtn-pri{background:var(--info);color:#fff;border-color:var(--info);}
+.mbtn-sec{background:var(--bg2);color:var(--text2);border-color:var(--border2);}
+.mbtn-warn{background:var(--urgent-bg);color:var(--urgent);border-color:var(--urgent-border);}
+.mbtn-dan{background:var(--stat);color:#fff;border-color:var(--stat);}
+ 
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.38);display:flex;align-items:center;justify-content:center;z-index:999;opacity:0;pointer-events:none;transition:opacity .18s;}
+.overlay.show{opacity:1;pointer-events:all;}
+.modal{background:var(--bg);border-radius:14px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;border:.5px solid var(--border2);transform:translateY(12px);transition:transform .2s;box-shadow:0 24px 60px rgba(0,0,0,.15);}
+.overlay.show .modal{transform:translateY(0);}
+.m-head{padding:1.3rem 1.4rem .9rem;border-bottom:.5px solid var(--border);}
+.m-title{font-size:15px;font-weight:700;margin-bottom:2px;}
+.m-sub{font-size:11px;color:var(--text2);}
+.m-body{padding:1.1rem 1.4rem;}
+.m-foot{padding:.9rem 1.4rem;border-top:.5px solid var(--border);display:flex;gap:8px;justify-content:flex-end;background:var(--bg2);border-radius:0 0 14px 14px;}
+ 
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:1rem;}
+.info-cell{background:var(--bg2);border-radius:var(--r);padding:.6rem .8rem;border:.5px solid var(--border);}
+.info-label{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;}
+.info-val{font-size:12px;font-weight:500;color:var(--text);}
+.info-cell.span2{grid-column:1/-1;}
+.info-cell.highlight-ok{background:var(--success-bg);border-color:var(--success-border);}
+.info-cell.highlight-warn{background:var(--urgent-bg);border-color:var(--urgent-border);}
+.info-cell.highlight-danger{background:var(--stat-bg);border-color:var(--stat-border);}
+ 
+.alert-box{border-radius:var(--r);padding:.65rem .9rem;font-size:11px;margin-bottom:.9rem;border:.5px solid;line-height:1.5;}
+.ab-warn{background:var(--urgent-bg);color:var(--urgent);border-color:var(--urgent-border);}
+.ab-danger{background:var(--stat-bg);color:var(--stat);border-color:var(--stat-border);}
+.ab-success{background:var(--success-bg);color:var(--success);border-color:var(--success-border);}
+ 
+.m-field{margin-bottom:.85rem;}
+.m-lbl{font-size:11px;color:var(--text2);margin-bottom:4px;display:block;font-weight:500;}
+.m-input{width:100%;font-size:12px;padding:7px 10px;border:.5px solid var(--border2);border-radius:var(--r);background:var(--bg);color:var(--text);outline:none;}
+.m-input:focus{border-color:var(--info);}
+.partial-note{font-size:10px;color:var(--text2);margin-top:4px;}
+.divider{height:.5px;background:var(--border);margin:.9rem 0;}
+ 
+/* STAFF */
+.staff-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+.sc{border:.5px solid var(--border);border-radius:var(--rl);padding:.85rem 1rem;background:var(--bg2);}
+.sav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-bottom:8px;}
+.sav-p{background:var(--info-bg);color:var(--info);}
+.sav-t{background:var(--success-bg);color:var(--success);}
+.sav-i{background:var(--urgent-bg);color:var(--urgent);}
+.sn{font-size:12px;font-weight:600;}.sr{font-size:10px;color:var(--text2);margin-top:1px;margin-bottom:6px;}
+.ss{font-size:10px;display:flex;align-items:center;gap:5px;color:var(--text2);}
+.dot{width:6px;height:6px;border-radius:50%;}
+.don{background:#639922;}.dbrk{background:#BA7517;}.doff{background:#888780;}
+.sstats{margin-top:8px;padding-top:8px;border-top:.5px solid var(--border);font-size:10px;color:var(--text2);display:flex;gap:10px;flex-wrap:wrap;}
+.sstats span{font-weight:600;color:var(--text);}
+ 
+/* TASKS */
+.tlist{display:flex;flex-direction:column;gap:6px;}
+.ti{display:flex;align-items:flex-start;gap:9px;border:.5px solid var(--border);border-radius:var(--r);padding:8px 11px;background:var(--bg2);}
+.chk{width:15px;height:15px;border-radius:3px;border:1.5px solid var(--border2);flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+.chk.done{background:var(--success-bg);border-color:var(--success-border);}
+.tt{font-size:12px;}.tt.dt{color:var(--text2);text-decoration:line-through;}
+.tm{margin-top:2px;font-size:10px;color:var(--text2);}
+.tcat{display:inline-block;font-size:9px;padding:1px 5px;border-radius:6px;background:var(--bg3);color:var(--text2);margin-right:4px;}
+ 
+/* ALERTS */
+.al-list{display:flex;flex-direction:column;gap:6px;}
+.ai{display:flex;gap:10px;align-items:flex-start;border-radius:var(--r);padding:9px 11px;border:.5px solid;}
+.ai-d{background:var(--stat-bg);border-color:var(--stat-border);}
+.ai-w{background:var(--urgent-bg);border-color:var(--urgent-border);}
+.ai-i{background:var(--info-bg);border-color:var(--info-border);}
+.at{font-size:12px;font-weight:600;}
+.at-d{color:var(--stat);}.at-w{color:var(--urgent);}.at-i{color:var(--info);}
+.ab{font-size:11px;color:var(--text2);margin-top:2px;line-height:1.5;}
+ 
+/* REORDERS */
+.ro-list{display:flex;flex-direction:column;gap:7px;}
+.ro-card{border:.5px solid var(--border);border-radius:var(--r);padding:.9rem 1.1rem;background:var(--bg2);display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+.ro-name{font-size:13px;font-weight:600;}
+.ro-meta{font-size:11px;color:var(--text2);margin-top:4px;line-height:1.8;}
+.ro-st{font-size:10px;padding:3px 9px;border-radius:8px;font-weight:600;white-space:nowrap;flex-shrink:0;}
+.rs-p{background:var(--urgent-bg);color:var(--urgent);}
+.rs-o{background:var(--info-bg);color:var(--info);}
+.rs-r{background:var(--success-bg);color:var(--success);}
+ 
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--text);color:var(--bg);padding:.65rem 1.1rem;border-radius:9px;font-size:12px;font-weight:500;z-index:1999;opacity:0;transform:translateY(6px);transition:all .22s;pointer-events:none;max-width:300px;line-height:1.4;}
+.toast.show{opacity:1;transform:translateY(0);}
+ 
+.sec-head{font-size:9px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--text2);font-size:12px;}
+.footer{text-align:center;font-size:10px;color:var(--text3);padding:.6rem 0 .2rem;}
+.sep{height:.5px;background:var(--border);margin:.9rem 0;}
+ 
+@media(max-width:820px){.metrics{grid-template-columns:repeat(3,1fr);}.staff-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:540px){.metrics{grid-template-columns:repeat(2,1fr);}.staff-grid{grid-template-columns:1fr;}.header{flex-direction:column;gap:10px;align-items:flex-start;}.header-right{flex-direction:column;align-items:flex-start;gap:6px;}}
 </style>
 </head>
 <body>
 <div class="page">
+ 
+  <!-- HEADER -->
   <div class="header">
     <div class="brand">
-      <div class="brand-logo">IH</div>
+      <div class="logo">IH</div>
       <div>
         <div class="brand-name">Indus Hospital &amp; Health Network</div>
-        <div class="brand-sub">Pharmacy Department — Worklist &nbsp;·&nbsp; Prototype v1.0</div>
+        <div class="brand-sub">Pharmacy Department — Worklist</div>
       </div>
     </div>
-    <div class="shift-info">
-      <span class="live"></span>Live &nbsp;·&nbsp; <span id="cur-date"></span><br>
-      Morning shift &nbsp;07:00 – 15:00<br>
-      <strong style="color:var(--text);">Karachi Main Campus</strong>
+    <div class="header-right">
+      <div class="live-chip"><span class="live-dot"></span>Live</div>
+      <div class="shift-text">
+        <span id="cur-date"></span><br>
+        Morning shift &nbsp;07:00–15:00 &nbsp;·&nbsp; <strong style="color:var(--text)">Karachi Main Campus</strong>
+      </div>
     </div>
   </div>
-
+ 
+  <!-- METRICS -->
   <div class="metrics">
-    <div class="metric"><div class="metric-label">Pending</div><div class="metric-val" id="m-q">18</div></div>
-    <div class="metric"><div class="metric-label">STAT / Urgent</div><div class="metric-val danger">4</div></div>
-    <div class="metric"><div class="metric-label">In progress</div><div class="metric-val warn">7</div></div>
-    <div class="metric"><div class="metric-label">Completed today</div><div class="metric-val success" id="m-d">31</div></div>
-    <div class="metric"><div class="metric-label">Out of stock</div><div class="metric-val danger">2</div></div>
-  </div>
-
-  <div class="card">
-    <div class="tabs">
-      <button class="tab active" onclick="sw('dispensing',this)">Dispensing queue</button>
-      <button class="tab" onclick="sw('staff',this)">Staff &amp; roles</button>
-      <button class="tab" onclick="sw('tasks',this)">Tasks</button>
-      <button class="tab" onclick="sw('alerts',this)">Inventory alerts <span class="notif-badge">5</span></button>
+    <div class="metric m-stat">
+      <div class="m-label">STAT / Urgent</div>
+      <div class="m-val red" id="m-u">—</div>
+      <div class="m-sub">Need immediate attention</div>
     </div>
-
+    <div class="metric m-warn">
+      <div class="m-label">Waiting</div>
+      <div class="m-val amber" id="m-q">—</div>
+      <div class="m-sub">Patients at counter</div>
+    </div>
+    <div class="metric m-info">
+      <div class="m-label">In progress</div>
+      <div class="m-val blue" id="m-p">—</div>
+      <div class="m-sub">Being prepared</div>
+    </div>
+    <div class="metric m-success">
+      <div class="m-label">Dispensed today</div>
+      <div class="m-val green" id="m-d">—</div>
+      <div class="m-sub">Successfully fulfilled</div>
+    </div>
+    <div class="metric m-ro">
+      <div class="m-label">Reorders raised</div>
+      <div class="m-val purple" id="m-r">0</div>
+      <div class="m-sub">Sent to procurement</div>
+    </div>
+    <div class="metric">
+      <div class="m-label">Out of stock</div>
+      <div class="m-val red" id="m-oos">—</div>
+      <div class="m-sub">Items unavailable</div>
+    </div>
+  </div>
+ 
+  <!-- MAIN CARD -->
+  <div class="card">
+    <div class="card-head">
+      <div class="tabs">
+        <button class="tab active" onclick="sw('dispensing',this)">Dispensing queue</button>
+        <button class="tab" onclick="sw('reorders',this)">Reorder requests <span class="nbadge" id="rob" style="display:none">0</span></button>
+        <button class="tab" onclick="sw('staff',this)">Staff &amp; roles</button>
+        <button class="tab" onclick="sw('tasks',this)">Tasks</button>
+        <button class="tab" onclick="sw('alerts',this)">Alerts <span class="nbadge">5</span></button>
+      </div>
+    </div>
+ 
     <!-- DISPENSING -->
     <div id="dispensing" class="panel active">
-      <div class="filter-row">
-        <input type="text" placeholder="Search patient or drug..." id="srch" oninput="filterRx()">
-        <select id="fstat" onchange="filterRx()"><option value="">All statuses</option><option>Waiting</option><option>In progress</option><option>Completed</option></select>
-        <select id="fpri" onchange="filterRx()"><option value="">All priorities</option><option>STAT</option><option>Urgent</option><option>Routine</option></select>
-        <select id="fav" onchange="filterRx()"><option value="">All stock</option><option>In stock</option><option>Low stock</option><option>Out of stock</option></select>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr>
-            <th>Rx ID</th><th>Patient</th><th>Drug</th><th>Dose</th>
-            <th>Qty requested</th><th>Qty available</th><th>Stock status</th>
-            <th>Priority</th><th>Assigned to</th><th>Status</th><th>Time</th>
-          </tr></thead>
-          <tbody id="rx-body"></tbody>
-        </table>
+      <div class="card-body">
+        <div class="frow">
+          <input type="text" class="finput search" placeholder="Search patient, drug or Rx ID…" id="srch" oninput="filterRx()">
+          <select class="finput" id="fstat" onchange="filterRx()">
+            <option value="">All statuses</option>
+            <option>Waiting</option><option>In progress</option>
+            <option>Dispensed</option><option>Partially dispensed</option><option>Reorder raised</option>
+          </select>
+          <select class="finput" id="fpri" onchange="filterRx()">
+            <option value="">All priorities</option>
+            <option>STAT</option><option>Urgent</option><option>Routine</option>
+          </select>
+          <select class="finput" id="fav" onchange="filterRx()">
+            <option value="">All stock</option>
+            <option>In stock</option><option>Low stock</option><option>Out of stock</option>
+          </select>
+        </div>
+        <div class="tw">
+          <table>
+            <thead><tr>
+              <th style="width:90px">Rx · Time</th>
+              <th>Patient &amp; Doctor</th>
+              <th>Drug &amp; Supply</th>
+              <th style="width:110px">Qty ordered / available</th>
+              <th style="width:100px">Stock</th>
+              <th style="width:72px">Waiting</th>
+              <th style="width:68px">Priority</th>
+              <th style="width:110px">Status</th>
+              <th style="width:140px">Actions</th>
+            </tr></thead>
+            <tbody id="rxb"></tbody>
+          </table>
+        </div>
       </div>
     </div>
-
+ 
+    <!-- REORDERS -->
+    <div id="reorders" class="panel">
+      <div class="card-body">
+        <div class="sec-head">Procurement reorder requests</div>
+        <div class="ro-list" id="rol">
+          <div class="empty" id="ro-empty">No reorders raised yet. Use the <strong>Reorder</strong> button from the dispensing queue when a drug is out of stock or insufficient.</div>
+        </div>
+      </div>
+    </div>
+ 
     <!-- STAFF -->
     <div id="staff" class="panel">
-      <div class="sec-head">On duty today</div>
-      <div class="staff-grid">
-        <div class="staff-card"><div class="staff-avatar av-p">SA</div><div class="staff-name">Dr. Sara Ahmed</div><div class="staff-role">Lead Pharmacist</div><div class="staff-status"><span class="dot dot-on"></span>On duty</div><div class="staff-stats">Active Rx: <span>6</span> &nbsp; Verifications: <span>12</span></div></div>
-        <div class="staff-card"><div class="staff-avatar av-t">KM</div><div class="staff-name">Khalid Mirza</div><div class="staff-role">Senior Technician</div><div class="staff-status"><span class="dot dot-on"></span>On duty</div><div class="staff-stats">Active Rx: <span>5</span> &nbsp; Labels: <span>9</span></div></div>
-        <div class="staff-card"><div class="staff-avatar av-t">NR</div><div class="staff-name">Nadia Rehman</div><div class="staff-role">Pharmacy Technician</div><div class="staff-status"><span class="dot dot-brk"></span>Break until 10:30</div><div class="staff-stats">Active Rx: <span>3</span> &nbsp; Labels: <span>4</span></div></div>
-        <div class="staff-card"><div class="staff-avatar av-i">HF</div><div class="staff-name">Hamza Farooq</div><div class="staff-role">Pharmacy Intern</div><div class="staff-status"><span class="dot dot-on"></span>On duty</div><div class="staff-stats">Supervised Rx: <span>2</span> &nbsp; Filing: <span>ongoing</span></div></div>
-        <div class="staff-card"><div class="staff-avatar av-p">LK</div><div class="staff-name">Dr. Layla Khan</div><div class="staff-role">Clinical Pharmacist</div><div class="staff-status"><span class="dot dot-on"></span>Ward 4 rounds</div><div class="staff-stats">Reviews: <span>3</span> &nbsp; Consults: <span>5</span></div></div>
-        <div class="staff-card"><div class="staff-avatar av-t">ZA</div><div class="staff-name">Zara Anwar</div><div class="staff-role">Pharmacy Technician</div><div class="staff-status"><span class="dot dot-off"></span>Off shift</div><div class="staff-stats">Returns: <span>afternoon</span></div></div>
+      <div class="card-body">
+        <div class="sec-head">On duty today</div>
+        <div class="staff-grid">
+          <div class="sc"><div class="sav sav-p">SA</div><div class="sn">Dr. Sara Ahmed</div><div class="sr">Lead Pharmacist</div><div class="ss"><span class="dot don"></span>On duty</div><div class="sstats">Active Rx: <span>6</span> Verifications: <span>12</span></div></div>
+          <div class="sc"><div class="sav sav-t">KM</div><div class="sn">Khalid Mirza</div><div class="sr">Senior Technician</div><div class="ss"><span class="dot don"></span>On duty</div><div class="sstats">Active Rx: <span>5</span> Labels: <span>9</span></div></div>
+          <div class="sc"><div class="sav sav-t">NR</div><div class="sn">Nadia Rehman</div><div class="sr">Pharmacy Technician</div><div class="ss"><span class="dot dbrk"></span>Break until 10:30</div><div class="sstats">Active Rx: <span>3</span> Labels: <span>4</span></div></div>
+          <div class="sc"><div class="sav sav-i">HF</div><div class="sn">Hamza Farooq</div><div class="sr">Pharmacy Intern</div><div class="ss"><span class="dot don"></span>On duty</div><div class="sstats">Supervised: <span>2</span> Filing: <span>ongoing</span></div></div>
+          <div class="sc"><div class="sav sav-p">LK</div><div class="sn">Dr. Layla Khan</div><div class="sr">Clinical Pharmacist</div><div class="ss"><span class="dot don"></span>Ward 4 rounds</div><div class="sstats">Reviews: <span>3</span> Consults: <span>5</span></div></div>
+          <div class="sc"><div class="sav sav-t">ZA</div><div class="sn">Zara Anwar</div><div class="sr">Pharmacy Technician</div><div class="ss"><span class="dot doff"></span>Off shift</div><div class="sstats">Returns: <span>afternoon</span></div></div>
+        </div>
       </div>
     </div>
-
+ 
     <!-- TASKS -->
     <div id="tasks" class="panel">
-      <div class="sec-head">Today's tasks</div>
-      <div class="task-list" id="task-list"></div>
+      <div class="card-body">
+        <div class="sec-head">Today's tasks</div>
+        <div class="tlist" id="tlist"></div>
+      </div>
     </div>
-
+ 
     <!-- ALERTS -->
     <div id="alerts" class="panel">
-      <div class="sec-head">Inventory &amp; system alerts</div>
-      <div class="alert-list">
-        <div class="alert-item al-d"><div style="font-size:15px;margin-top:1px;">&#9888;</div><div><div class="alert-title at-d">Out of stock — Morphine 10mg/mL injection</div><div class="alert-body">0 vials remaining. 3 active prescriptions pending. Escalate to procurement immediately and notify prescribers.</div></div></div>
-        <div class="alert-item al-d"><div style="font-size:15px;margin-top:1px;">&#9888;</div><div><div class="alert-title at-d">Out of stock — Norepinephrine 4mg/250mL (ICU)</div><div class="alert-body">Last unit dispensed at 07:35. Critical ICU item — contact pharmacy store and duty manager now.</div></div></div>
-        <div class="alert-item al-w"><div style="font-size:15px;margin-top:1px;">&#9651;</div><div><div class="alert-title at-w">Low stock — Vancomycin IV 1g (8 units left)</div><div class="alert-body">Reorder threshold is 15 units. Raise PO before 14:00 today.</div></div></div>
-        <div class="alert-item al-w"><div style="font-size:15px;margin-top:1px;">&#9651;</div><div><div class="alert-title at-w">Low stock — Amoxicillin 500mg capsules (60 units)</div><div class="alert-body">Below 100-unit threshold. Raise purchase order before afternoon shift.</div></div></div>
-        <div class="alert-item al-w"><div style="font-size:15px;margin-top:1px;">&#9651;</div><div><div class="alert-title at-w">CD discrepancy — Tramadol 50mg (logged 84, expected 86)</div><div class="alert-body">Second pharmacist verification required. Do not dispense until resolved.</div></div></div>
-        <div class="alert-item al-d"><div style="font-size:15px;margin-top:1px;">&#9888;</div><div><div class="alert-title at-d">Expiry — Vancomycin IV 500mg, Batch VN-2024-88</div><div class="alert-body">12 units expire in 3 days. Quarantine and notify supervisor before dispensing.</div></div></div>
-        <div class="alert-item al-i"><div style="font-size:15px;margin-top:1px;">&#9432;</div><div><div class="alert-title at-i">System maintenance — PAMS offline 23:00 tonight</div><div class="alert-body">Ensure all records saved before 22:45. Downtime approx. 30 minutes.</div></div></div>
+      <div class="card-body">
+        <div class="sec-head">Inventory &amp; system alerts</div>
+        <div class="al-list">
+          <div class="ai ai-d"><div style="font-size:14px;margin-top:1px">⚠</div><div><div class="at at-d">Out of stock — Morphine 10mg/mL injection</div><div class="ab">0 vials remaining. 3 active prescriptions pending. Escalate to procurement immediately and notify prescribers.</div></div></div>
+          <div class="ai ai-d"><div style="font-size:14px;margin-top:1px">⚠</div><div><div class="at at-d">Out of stock — Norepinephrine 4mg/250mL (ICU)</div><div class="ab">Last unit dispensed at 07:35. Critical ICU item — contact pharmacy store and duty manager now.</div></div></div>
+          <div class="ai ai-w"><div style="font-size:14px;margin-top:1px">▲</div><div><div class="at at-w">Low stock — Vancomycin IV 1g (8 units · threshold 15)</div><div class="ab">Raise purchase order before 14:00 today or use the Reorder button on affected prescriptions.</div></div></div>
+          <div class="ai ai-w"><div style="font-size:14px;margin-top:1px">▲</div><div><div class="at at-w">CD discrepancy — Tramadol 50mg (logged 84, expected 86)</div><div class="ab">Second pharmacist verification required. Do not dispense until resolved.</div></div></div>
+          <div class="ai ai-d"><div style="font-size:14px;margin-top:1px">⚠</div><div><div class="at at-d">Expiry alert — Vancomycin IV 500mg, Batch VN-2024-88</div><div class="ab">12 units expire in 3 days. Quarantine and notify supervisor before dispensing from this batch.</div></div></div>
+          <div class="ai ai-i"><div style="font-size:14px;margin-top:1px">ℹ</div><div><div class="at at-i">System maintenance — PAMS offline tonight at 23:00 (~30 min)</div><div class="ab">Save all dispensing records before 22:45.</div></div></div>
+        </div>
       </div>
     </div>
   </div>
-
-  <div style="text-align:center;font-size:11px;color:var(--text2);padding-bottom:1rem;">
-    Indus Hospital &amp; Health Network &nbsp;·&nbsp; Pharmacy Department &nbsp;·&nbsp; Prototype v1.0 &nbsp;·&nbsp; For internal review only
+  <div class="footer">Indus Hospital &amp; Health Network · Pharmacy Department · Prototype v3.0 · For internal review only</div>
+</div>
+ 
+<!-- DISPENSE MODAL -->
+<div class="overlay" id="dov">
+  <div class="modal">
+    <div class="m-head">
+      <div class="m-title" id="dm-title">Dispense prescription</div>
+      <div class="m-sub" id="dm-sub"></div>
+    </div>
+    <div class="m-body">
+      <div id="dm-alert" class="alert-box" style="display:none"></div>
+      <div class="info-grid" id="dm-grid"></div>
+      <div class="sep"></div>
+      <div id="dm-partial-sec" style="display:none">
+        <div class="m-field">
+          <label class="m-lbl">Qty to dispense now (partial fill)</label>
+          <input class="m-input" type="number" id="dm-pqty" min="1">
+          <div class="partial-note">The remaining balance will require a separate reorder request.</div>
+        </div>
+      </div>
+      <div class="m-field">
+        <label class="m-lbl">Dispensed by</label>
+        <select class="m-input" id="dm-by">
+          <option>Dr. Sara Ahmed</option><option>Khalid Mirza</option>
+          <option>Nadia Rehman</option><option>Hamza Farooq</option><option>Dr. Layla Khan</option>
+        </select>
+      </div>
+      <div class="m-field">
+        <label class="m-lbl">Notes (optional)</label>
+        <input class="m-input" type="text" id="dm-notes" placeholder="e.g. patient counselled, administered at bedside…">
+      </div>
+    </div>
+    <div class="m-foot">
+      <button class="mbtn mbtn-sec" onclick="closeDov()">Cancel</button>
+      <button class="mbtn mbtn-warn" id="dm-pbtn" style="display:none" onclick="doPartial()">Dispense partial</button>
+      <button class="mbtn mbtn-pri" id="dm-cbtn" onclick="doDispense()">Confirm dispense</button>
+    </div>
   </div>
 </div>
-
+ 
+<!-- REORDER MODAL -->
+<div class="overlay" id="rov">
+  <div class="modal">
+    <div class="m-head">
+      <div class="m-title">Raise reorder request</div>
+      <div class="m-sub">Submit a procurement request. The Rx will be marked as reorder raised.</div>
+    </div>
+    <div class="m-body">
+      <div class="alert-box ab-danger" id="rm-alert"></div>
+      <div class="info-grid" id="rm-grid"></div>
+      <div class="sep"></div>
+      <div class="m-field">
+        <label class="m-lbl">Qty to reorder</label>
+        <input class="m-input" type="number" id="rm-qty" placeholder="e.g. 100">
+      </div>
+      <div class="m-field">
+        <label class="m-lbl">Urgency</label>
+        <select class="m-input" id="rm-urg">
+          <option>Critical — needed within hours</option>
+          <option>Urgent — needed within 24 hrs</option>
+          <option>High — needed within 2–3 days</option>
+          <option>Routine — standard reorder</option>
+        </select>
+      </div>
+      <div class="m-field">
+        <label class="m-lbl">Notes for procurement</label>
+        <input class="m-input" type="text" id="rm-notes" placeholder="e.g. ICU patient critically needs this, please expedite…">
+      </div>
+      <div class="m-field">
+        <label class="m-lbl">Raised by</label>
+        <select class="m-input" id="rm-by">
+          <option>Dr. Sara Ahmed</option><option>Khalid Mirza</option>
+          <option>Nadia Rehman</option><option>Hamza Farooq</option><option>Dr. Layla Khan</option>
+        </select>
+      </div>
+    </div>
+    <div class="m-foot">
+      <button class="mbtn mbtn-sec" onclick="closeRov()">Cancel</button>
+      <button class="mbtn mbtn-dan" onclick="doReorder()">Raise reorder</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="toast" id="toast"></div>
+ 
 <script>
 document.getElementById("cur-date").textContent = new Date().toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"});
-
-const rxData=[
-  {id:"RX-00412",patient:"Fatima Al-Rashid",drug:"Metformin",dose:"850mg tabs",qtyReq:21,qtyAvail:120,avail:"In stock",priority:"Routine",assigned:"K. Mirza",status:"Completed",time:"07:14"},
-  {id:"RX-00413",patient:"Omar Siddiqui",drug:"Atorvastatin",dose:"40mg tabs",qtyReq:30,qtyAvail:88,avail:"In stock",priority:"Routine",assigned:"N. Rehman",status:"Completed",time:"07:22"},
-  {id:"RX-00414",patient:"ICU Bed 3",drug:"Norepinephrine",dose:"4mg/250mL IV",qtyReq:2,qtyAvail:0,avail:"Out of stock",priority:"STAT",assigned:"Dr. Ahmed",status:"Completed",time:"07:35"},
-  {id:"RX-00415",patient:"Aisha Qureshi",drug:"Amoxicillin",dose:"500mg caps",qtyReq:21,qtyAvail:60,avail:"Low stock",priority:"Routine",assigned:"H. Farooq",status:"In progress",time:"08:02"},
-  {id:"RX-00416",patient:"Ward 2 — Bed 8",drug:"Vancomycin",dose:"IV 1g",qtyReq:4,qtyAvail:8,avail:"Low stock",priority:"Urgent",assigned:"Dr. Ahmed",status:"In progress",time:"08:10"},
-  {id:"RX-00417",patient:"Tariq Hassan",drug:"Warfarin",dose:"3mg tabs",qtyReq:28,qtyAvail:200,avail:"In stock",priority:"Routine",assigned:"K. Mirza",status:"In progress",time:"08:18"},
-  {id:"RX-00418",patient:"CCU Bed 1",drug:"Heparin",dose:"25,000 units IV",qtyReq:1,qtyAvail:14,avail:"In stock",priority:"STAT",assigned:"Dr. Ahmed",status:"In progress",time:"08:25"},
-  {id:"RX-00419",patient:"Sana Malik",drug:"Salbutamol",dose:"Inhaler 100mcg",qtyReq:2,qtyAvail:45,avail:"In stock",priority:"Routine",assigned:"K. Mirza",status:"Waiting",time:"08:30"},
-  {id:"RX-00420",patient:"Emergency — Triage 2",drug:"Morphine",dose:"10mg IV",qtyReq:3,qtyAvail:0,avail:"Out of stock",priority:"STAT",assigned:"Dr. Ahmed",status:"In progress",time:"08:33"},
-  {id:"RX-00421",patient:"Bilal Chaudhry",drug:"Lisinopril",dose:"5mg tabs",qtyReq:30,qtyAvail:310,avail:"In stock",priority:"Routine",assigned:"Unassigned",status:"Waiting",time:"08:41"},
-  {id:"RX-00422",patient:"Ward 4 — Bed 12",drug:"Furosemide",dose:"40mg IV",qtyReq:5,qtyAvail:22,avail:"In stock",priority:"Urgent",assigned:"Dr. Khan",status:"Waiting",time:"08:45"},
-  {id:"RX-00423",patient:"Hira Baig",drug:"Levothyroxine",dose:"50mcg tabs",qtyReq:30,qtyAvail:95,avail:"In stock",priority:"Routine",assigned:"Unassigned",status:"Waiting",time:"08:52"},
-  {id:"RX-00424",patient:"Pediatrics — Bed 3",drug:"Paracetamol syrup",dose:"120mg/5mL",qtyReq:1,qtyAvail:7,avail:"Low stock",priority:"Urgent",assigned:"N. Rehman",status:"Waiting",time:"09:01"},
-  {id:"RX-00425",patient:"Asad Noor",drug:"Omeprazole",dose:"20mg caps",qtyReq:14,qtyAvail:180,avail:"In stock",priority:"Routine",assigned:"Unassigned",status:"Waiting",time:"09:05"},
+ 
+// Simulate patient arrival times (minutes ago)
+const baseTime = Date.now();
+let rx = [
+  {id:"RX-00412",patient:"Fatima Al-Rashid",doctor:"Dr. Imran Siddiqui",drug:"Metformin",dose:"850mg tabs",days:30,qOrd:60,qAvail:120,avail:"In stock",pri:"Routine",status:"Dispensed",arrivedMinsAgo:52},
+  {id:"RX-00413",patient:"Omar Siddiqui",doctor:"Dr. Ayesha Noor",drug:"Atorvastatin",dose:"40mg tabs",days:30,qOrd:30,qAvail:88,avail:"In stock",pri:"Routine",status:"Dispensed",arrivedMinsAgo:44},
+  {id:"RX-00414",patient:"ICU — Bed 3",doctor:"Dr. Kamran Baig",drug:"Norepinephrine",dose:"4mg/250mL IV",days:1,qOrd:2,qAvail:0,avail:"Out of stock",pri:"STAT",status:"Reorder raised",arrivedMinsAgo:39},
+  {id:"RX-00415",patient:"Aisha Qureshi",doctor:"Dr. Sara Malik",drug:"Amoxicillin",dose:"500mg caps",days:7,qOrd:21,qAvail:60,avail:"Low stock",pri:"Routine",status:"In progress",arrivedMinsAgo:24},
+  {id:"RX-00416",patient:"Ward 2 — Bed 8",doctor:"Dr. Faisal Raza",drug:"Vancomycin",dose:"IV 1g",days:5,qOrd:20,qAvail:8,avail:"Low stock",pri:"Urgent",status:"In progress",arrivedMinsAgo:18},
+  {id:"RX-00420",patient:"Emergency — Triage 2",doctor:"Dr. Kamran Baig",drug:"Morphine",dose:"10mg IV",days:1,qOrd:3,qAvail:0,avail:"Out of stock",pri:"STAT",status:"In progress",arrivedMinsAgo:14},
+  {id:"RX-00418",patient:"CCU — Bed 1",doctor:"Dr. Kamran Baig",drug:"Heparin",dose:"25,000 units IV",days:1,qOrd:2,qAvail:14,avail:"In stock",pri:"STAT",status:"Waiting",arrivedMinsAgo:9},
+  {id:"RX-00422",patient:"Ward 4 — Bed 12",doctor:"Dr. Layla Khan",drug:"Furosemide",dose:"40mg IV",days:3,qOrd:6,qAvail:22,avail:"In stock",pri:"Urgent",status:"Waiting",arrivedMinsAgo:7},
+  {id:"RX-00424",patient:"Pediatrics — Bed 3",doctor:"Dr. Ayesha Noor",drug:"Paracetamol syrup",dose:"120mg/5mL",days:5,qOrd:3,qAvail:7,avail:"Low stock",pri:"Urgent",status:"Waiting",arrivedMinsAgo:5},
+  {id:"RX-00417",patient:"Tariq Hassan",doctor:"Dr. Ayesha Noor",drug:"Warfarin",dose:"3mg tabs",days:28,qOrd:28,qAvail:200,avail:"In stock",pri:"Routine",status:"Waiting",arrivedMinsAgo:4},
+  {id:"RX-00419",patient:"Sana Malik",doctor:"Dr. Imran Siddiqui",drug:"Salbutamol",dose:"Inhaler 100mcg",days:30,qOrd:2,qAvail:45,avail:"In stock",pri:"Routine",status:"Waiting",arrivedMinsAgo:2},
+  {id:"RX-00421",patient:"Bilal Chaudhry",doctor:"Dr. Sara Malik",drug:"Lisinopril",dose:"5mg tabs",days:30,qOrd:30,qAvail:310,avail:"In stock",pri:"Routine",status:"Waiting",arrivedMinsAgo:2},
+  {id:"RX-00423",patient:"Hira Baig",doctor:"Dr. Faisal Raza",drug:"Levothyroxine",dose:"50mcg tabs",days:30,qOrd:30,qAvail:95,avail:"In stock",pri:"Routine",status:"Waiting",arrivedMinsAgo:1},
+  {id:"RX-00425",patient:"Asad Noor",doctor:"Dr. Imran Siddiqui",drug:"Omeprazole",dose:"20mg caps",days:14,qOrd:14,qAvail:180,avail:"In stock",pri:"Routine",status:"Waiting",arrivedMinsAgo:1},
 ];
-
-const pb={STAT:"b-stat",Urgent:"b-urgent",Routine:"b-routine"};
-const sb={Completed:"b-done","In progress":"b-prog",Waiting:"b-wait"};
-const ac={"In stock":"in","Low stock":"low","Out of stock":"out"};
-const al={"In stock":"av-in","Low stock":"av-low","Out of stock":"av-out"};
-
-function renderRx(data){
-  const b=document.getElementById("rx-body");
-  if(!data.length){b.innerHTML=`<tr><td colspan="11" class="empty">No prescriptions match the current filters.</td></tr>`;return;}
-  b.innerHTML=data.map(r=>{
-    const qc=r.qtyAvail===0?"color:#a32d2d;":r.qtyAvail<20?"color:#854f0b;":"color:#3b6d11;";
-    return`<tr>
-      <td class="rx-id">${r.id}</td>
-      <td style="font-size:12px;">${r.patient}</td>
-      <td><div class="drug-name">${r.drug}</div></td>
-      <td class="drug-dose">${r.dose}</td>
-      <td><span class="qty-val">${r.qtyReq}</span></td>
-      <td><span class="qty-val" style="${qc}">${r.qtyAvail}</span></td>
-      <td><span class="avail-pill ${al[r.avail]}"><span class="avail-dot ${ac[r.avail]}"></span>${r.avail}</span></td>
-      <td><span class="badge ${pb[r.priority]}">${r.priority}</span></td>
-      <td style="font-size:11px;">${r.assigned}</td>
-      <td><span class="badge ${sb[r.status]}">${r.status}</span></td>
-      <td style="font-size:11px;color:#6b6b66;">${r.time}</td>
+ 
+// Sort: STAT > Urgent > Routine, then by wait time desc, completed last
+function sortRx(data){
+  const priOrder={STAT:0,Urgent:1,Routine:2};
+  const doneStatus=s=>s==="Dispensed";
+  return [...data].sort((a,b)=>{
+    if(doneStatus(a.status)!==doneStatus(b.status)) return doneStatus(a.status)?1:-1;
+    if(priOrder[a.pri]!==priOrder[b.pri]) return priOrder[a.pri]-priOrder[b.pri];
+    return b.arrivedMinsAgo-a.arrivedMinsAgo;
+  });
+}
+ 
+let reorders=[];
+let activeId=null;
+ 
+const priMap={STAT:"b-stat",Urgent:"b-urg",Routine:"b-rou"};
+const stMap={Dispensed:"b-dis","In progress":"b-prog",Waiting:"b-wait","Partially dispensed":"b-part","Reorder raised":"b-ro"};
+const spMap={"In stock":"sp-in","Low stock":"sp-low","Out of stock":"sp-out"};
+const sdMap={"In stock":"sd-in","Low stock":"sd-low","Out of stock":"sd-out"};
+ 
+function waitLabel(mins){
+  if(mins<15) return `<div class="wait wait-ok">${mins}m</div><div class="wait-label">waiting</div>`;
+  if(mins<30) return `<div class="wait wait-warn">${mins}m</div><div class="wait-label">waiting</div>`;
+  return `<div class="wait wait-danger">${mins}m !</div><div class="wait-label">overdue</div>`;
+}
+ 
+function actions(r){
+  const done=r.status==="Dispensed";
+  const ro=r.status==="Reorder raised";
+  if(done) return `<span class="btn-done-tag">✓ Dispensed</span>`;
+  if(ro) return `<span class="btn-ro-tag">↺ Reorder raised</span>`;
+  if(r.avail==="Out of stock"){
+    return `<button class="btn btn-ro" onclick="openRov('${r.id}')">+ Raise reorder</button>`;
+  }
+  if(r.avail==="Low stock"&&r.qAvail<r.qOrd){
+    return `<div class="act-wrap">
+      <button class="btn btn-dis" onclick="openDov('${r.id}')">→ Dispense</button>
+      <button class="btn btn-ro" onclick="openRov('${r.id}')">+ Reorder</button>
+    </div>`;
+  }
+  return `<button class="btn btn-dis" onclick="openDov('${r.id}')">→ Dispense</button>`;
+}
+ 
+function rowClass(r){
+  if(r.status==="Dispensed") return "row-done";
+  if(r.pri==="STAT") return "row-stat";
+  if(r.pri==="Urgent") return "row-urgent";
+  return "";
+}
+ 
+function render(data){
+  const sorted=sortRx(data);
+  const b=document.getElementById("rxb");
+  if(!sorted.length){b.innerHTML=`<tr><td colspan="9"><div class="empty">No prescriptions match the current filters.</div></td></tr>`;return;}
+  b.innerHTML=sorted.map(r=>{
+    const qColor=r.qAvail===0?"color:var(--stat)":r.qAvail<r.qOrd?"color:var(--urgent)":"color:var(--success)";
+    const showWait=r.status!=="Dispensed"&&r.status!=="Reorder raised";
+    return`<tr class="${rowClass(r)}">
+      <td><div class="td-inner"><div class="rxid">${r.id}</div><div style="font-size:10px;color:var(--text2);margin-top:2px">${getTime(r.arrivedMinsAgo)}</div></div></td>
+      <td><div class="td-inner"><div class="pt-name">${r.patient}</div><div class="pt-doc">${r.doctor}</div></div></td>
+      <td><div class="td-inner"><div class="drug-name">${r.drug}</div><div class="drug-info">${r.dose} &nbsp;<span class="dsup">${r.days}-day supply</span></div></div></td>
+      <td><div class="td-inner">
+        <div class="qty-block">
+          <span class="qty-num">${r.qOrd}</span>
+          <span class="qty-of">ordered</span>
+        </div>
+        <div style="font-size:10px;margin-top:2px">
+          <span class="qty-avail" style="${qColor}">${r.qAvail}</span>
+          <span style="font-size:9px;color:var(--text3)"> in stock</span>
+        </div>
+      </div></td>
+      <td><div class="td-inner"><span class="sp ${spMap[r.avail]}"><span class="sd ${sdMap[r.avail]}"></span>${r.avail}</span></div></td>
+      <td><div class="td-inner">${showWait?waitLabel(r.arrivedMinsAgo):`<span style="font-size:10px;color:var(--text3)">—</span>`}</div></td>
+      <td><div class="td-inner"><span class="badge ${priMap[r.pri]}">${r.pri}</span></div></td>
+      <td><div class="td-inner"><span class="badge ${stMap[r.status]||'b-wait'}">${r.status}</span></div></td>
+      <td><div class="td-inner">${actions(r)}</div></td>
     </tr>`;
   }).join("");
+  updateM();
 }
-renderRx(rxData);
-
+render(rx);
+ 
+function getTime(minsAgo){
+  const d=new Date(Date.now()-minsAgo*60000);
+  return d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+}
+ 
 function filterRx(){
   const q=document.getElementById("srch").value.toLowerCase();
   const st=document.getElementById("fstat").value;
   const pr=document.getElementById("fpri").value;
   const av=document.getElementById("fav").value;
-  renderRx(rxData.filter(r=>
-    (!q||r.patient.toLowerCase().includes(q)||r.drug.toLowerCase().includes(q))&&
-    (!st||r.status===st)&&(!pr||r.priority===pr)&&(!av||r.avail===av)
+  render(rx.filter(r=>
+    (!q||r.patient.toLowerCase().includes(q)||r.drug.toLowerCase().includes(q)||r.id.toLowerCase().includes(q))&&
+    (!st||r.status===st)&&(!pr||r.pri===pr)&&(!av||r.avail===av)
   ));
 }
-
-const tasks=[
-  {text:"Verify morning controlled drug counts",cat:"Controls",done:true,who:"Dr. Ahmed",time:"07:00"},
-  {text:"Prepare IV vancomycin — Ward 2 Bed 8 (1g x2 doses)",cat:"IV prep",done:false,who:"K. Mirza",time:"08:30"},
-  {text:"Medication reconciliation — 3 new admissions",cat:"Reconciliation",done:false,who:"Dr. Khan",time:"09:00"},
-  {text:"Print and file dispensing labels — morning batch",cat:"Admin",done:true,who:"H. Farooq",time:"07:45"},
-  {text:"Escalate morphine stock-out to procurement — urgent",cat:"Inventory",done:false,who:"Dr. Ahmed",time:"09:00"},
-  {text:"Notify prescribers of morphine and norepinephrine stock-outs",cat:"Communication",done:false,who:"Dr. Ahmed",time:"09:15"},
-  {text:"Run expiry check on all refrigerated medications",cat:"Inventory",done:false,who:"N. Rehman",time:"10:00"},
-  {text:"Counsel Fatima Al-Rashid on Metformin usage",cat:"Counselling",done:false,who:"Dr. Ahmed",time:"10:30"},
-  {text:"Resolve CD discrepancy — Tramadol (second pharmacist sign-off)",cat:"Controls",done:false,who:"Dr. Ahmed",time:"11:00"},
-  {text:"Raise PO for amoxicillin and vancomycin restock",cat:"Admin",done:false,who:"H. Farooq",time:"13:00"},
-  {text:"Afternoon handover notes prepared",cat:"Admin",done:false,who:"Dr. Ahmed",time:"14:30"},
-];
-
-function renderTasks(){
-  document.getElementById("task-list").innerHTML=tasks.map((t,i)=>`
-    <div class="task-item">
-      <div class="chk ${t.done?"done":""}" onclick="toggleTask(${i})">
-        ${t.done?`<svg width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#3b6d11" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`:""}
-      </div>
+ 
+function updateM(){
+  document.getElementById("m-q").textContent=rx.filter(r=>r.status==="Waiting").length;
+  document.getElementById("m-p").textContent=rx.filter(r=>r.status==="In progress").length;
+  document.getElementById("m-d").textContent=rx.filter(r=>r.status==="Dispensed"||r.status==="Partially dispensed").length;
+  document.getElementById("m-u").textContent=rx.filter(r=>(r.pri==="STAT"||r.pri==="Urgent")&&r.status!=="Dispensed").length;
+  document.getElementById("m-r").textContent=reorders.length;
+  document.getElementById("m-oos").textContent=rx.filter(r=>r.avail==="Out of stock").length;
+  const rb=document.getElementById("rob");
+  rb.textContent=reorders.length;
+  rb.style.display=reorders.length?"inline":"none";
+}
+ 
+// ---- DISPENSE ----
+function openDov(id){
+  activeId=id;
+  const r=rx.find(x=>x.id===id);
+  document.getElementById("dm-title").textContent="Dispense — "+r.drug;
+  document.getElementById("dm-sub").textContent="For "+r.patient+" · "+r.doctor;
+ 
+  const partial=r.avail==="Low stock"&&r.qAvail<r.qOrd;
+  const lowWarn=r.avail==="Low stock"&&r.qAvail>=r.qOrd;
+ 
+  const al=document.getElementById("dm-alert");
+  if(partial){
+    al.className="alert-box ab-warn";
+    al.innerHTML="⚠ Stock ("+r.qAvail+" units) is less than ordered ("+r.qOrd+" units). You may dispense partially or give all available stock — a reorder can be raised for the remainder.";
+    al.style.display="block";
+  } else if(lowWarn){
+    al.className="alert-box ab-warn";
+    al.innerHTML="⚠ Stock is low ("+r.qAvail+" units remaining). Consider raising a reorder after dispensing.";
+    al.style.display="block";
+  } else {
+    al.className="alert-box ab-success";
+    al.innerHTML="✓ Sufficient stock available — "+r.qAvail+" units in stock, "+r.qOrd+" ordered.";
+    al.style.display="block";
+  }
+ 
+  const stockHighlight=r.qAvail<r.qOrd?"highlight-danger":r.qAvail<r.qOrd*1.5?"highlight-warn":"highlight-ok";
+  document.getElementById("dm-grid").innerHTML=`
+    <div class="info-cell"><div class="info-label">Rx ID</div><div class="info-val">${r.id}</div></div>
+    <div class="info-cell"><div class="info-label">Arrived</div><div class="info-val">${getTime(r.arrivedMinsAgo)} (${r.arrivedMinsAgo}m ago)</div></div>
+    <div class="info-cell"><div class="info-label">Patient</div><div class="info-val">${r.patient}</div></div>
+    <div class="info-cell"><div class="info-label">Ordered by</div><div class="info-val">${r.doctor}</div></div>
+    <div class="info-cell span2"><div class="info-label">Drug &amp; dose</div><div class="info-val">${r.drug} — ${r.dose} · ${r.days}-day supply</div></div>
+    <div class="info-cell"><div class="info-label">Qty ordered</div><div class="info-val">${r.qOrd} units</div></div>
+    <div class="info-cell ${stockHighlight}"><div class="info-label">In stock</div><div class="info-val">${r.qAvail} units</div></div>
+  `;
+ 
+  const ps=document.getElementById("dm-partial-sec");
+  const pb=document.getElementById("dm-pbtn");
+  const cb=document.getElementById("dm-cbtn");
+  if(partial){
+    ps.style.display="block";pb.style.display="inline-block";
+    document.getElementById("dm-pqty").max=r.qAvail;
+    document.getElementById("dm-pqty").value=r.qAvail;
+    cb.textContent="Dispense all available ("+r.qAvail+")";
+  } else {
+    ps.style.display="none";pb.style.display="none";
+    cb.textContent="Confirm dispense ("+r.qOrd+" units)";
+  }
+  document.getElementById("dm-notes").value="";
+  document.getElementById("dov").classList.add("show");
+}
+function closeDov(){document.getElementById("dov").classList.remove("show");activeId=null;}
+function doDispense(){
+  const r=rx.find(x=>x.id===activeId);
+  r.qAvail=Math.max(0,r.qAvail-r.qOrd);
+  r.status="Dispensed";
+  r.avail=r.qAvail===0?"Out of stock":r.qAvail<20?"Low stock":"In stock";
+  closeDov();render(rx);
+  showToast("✓ "+r.drug+" dispensed successfully for "+r.patient);
+}
+function doPartial(){
+  const r=rx.find(x=>x.id===activeId);
+  const qty=parseInt(document.getElementById("dm-pqty").value)||r.qAvail;
+  r.qAvail=Math.max(0,r.qAvail-qty);
+  r.status="Partially dispensed";
+  r.avail=r.qAvail===0?"Out of stock":"Low stock";
+  closeDov();render(rx);
+  showToast("Partial dispense done ("+qty+" of "+r.qOrd+"). Please raise a reorder for the remaining "+(r.qOrd-qty)+" units.");
+}
+ 
+// ---- REORDER ----
+function openRov(id){
+  activeId=id;
+  const r=rx.find(x=>x.id===id);
+  const al=document.getElementById("rm-alert");
+  if(r.avail==="Out of stock"){
+    al.innerHTML="⚠ This drug is <strong>completely out of stock</strong>. The prescription cannot be filled until stock is received.";
+  } else {
+    al.innerHTML="⚠ Available stock (<strong>"+r.qAvail+" units</strong>) is below the quantity ordered (<strong>"+r.qOrd+" units</strong>).";
+  }
+  document.getElementById("rm-grid").innerHTML=`
+    <div class="info-cell"><div class="info-label">Rx ID</div><div class="info-val">${r.id}</div></div>
+    <div class="info-cell"><div class="info-label">Patient</div><div class="info-val">${r.patient}</div></div>
+    <div class="info-cell"><div class="info-label">Drug</div><div class="info-val">${r.drug}</div></div>
+    <div class="info-cell"><div class="info-label">Dose</div><div class="info-val">${r.dose}</div></div>
+    <div class="info-cell"><div class="info-label">Qty needed</div><div class="info-val">${r.qOrd} units</div></div>
+    <div class="info-cell highlight-danger"><div class="info-label">Currently in stock</div><div class="info-val">${r.qAvail} units</div></div>
+  `;
+  document.getElementById("rm-qty").value=Math.max(50,r.qOrd*3);
+  document.getElementById("rm-notes").value="";
+  document.getElementById("rov").classList.add("show");
+}
+function closeRov(){document.getElementById("rov").classList.remove("show");activeId=null;}
+function doReorder(){
+  const r=rx.find(x=>x.id===activeId);
+  const qty=document.getElementById("rm-qty").value;
+  reorders.push({
+    id:"RO-"+String(reorders.length+1).padStart(3,"0"),
+    rxId:r.id,patient:r.patient,drug:r.drug,dose:r.dose,
+    qNeed:r.qOrd,qRo:qty,
+    urg:document.getElementById("rm-urg").value,
+    notes:document.getElementById("rm-notes").value,
+    by:document.getElementById("rm-by").value,
+    status:"Pending",
+    time:new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})
+  });
+  if(r.status!=="Partially dispensed") r.status="Reorder raised";
+  closeRov();render(rx);renderReorders();
+  showToast("Reorder raised for "+r.drug+" · Procurement notified");
+}
+ 
+function renderReorders(){
+  const el=document.getElementById("rol");
+  if(!reorders.length){
+    el.innerHTML=`<div class="empty" id="ro-empty">No reorders raised yet. Use the <strong>Reorder</strong> button from the dispensing queue when a drug is out of stock or insufficient.</div>`;
+    return;
+  }
+  el.innerHTML=reorders.map(ro=>`
+    <div class="ro-card">
       <div style="flex:1">
-        <div class="task-text ${t.done?"done-text":""}">${t.text}</div>
-        <div class="task-meta"><span class="task-cat">${t.cat}</span>${t.who} &nbsp;·&nbsp; Due ${t.time}</div>
+        <div class="ro-name">${ro.drug} <span style="font-weight:400;font-size:11px;color:var(--text2)">${ro.dose}</span></div>
+        <div class="ro-meta">
+          <strong>${ro.id}</strong> · Patient: ${ro.patient} · Linked to ${ro.rxId}<br>
+          Qty needed: <strong>${ro.qNeed}</strong> &nbsp;·&nbsp; Qty reordered: <strong>${ro.qRo}</strong><br>
+          ${ro.urg} · Raised by <strong>${ro.by}</strong> at ${ro.time}
+          ${ro.notes?`<br><em style="color:var(--text2)">"${ro.notes}"</em>`:""}
+        </div>
       </div>
+      <span class="ro-st ${ro.status==="Pending"?"rs-p":ro.status==="Ordered"?"rs-o":"rs-r"}">${ro.status}</span>
     </div>
   `).join("");
+  updateM();
+}
+ 
+// TASKS
+const tasks=[
+  {t:"Verify morning controlled drug counts",c:"Controls",done:true,who:"Dr. Ahmed",due:"07:00"},
+  {t:"Prepare IV vancomycin — Ward 2 Bed 8 (1g × 2 doses)",c:"IV prep",done:false,who:"K. Mirza",due:"08:30"},
+  {t:"Medication reconciliation — 3 new admissions",c:"Reconciliation",done:false,who:"Dr. Khan",due:"09:00"},
+  {t:"Print and file dispensing labels — morning batch",c:"Admin",done:true,who:"H. Farooq",due:"07:45"},
+  {t:"Escalate morphine stock-out to procurement",c:"Inventory",done:false,who:"Dr. Ahmed",due:"09:00"},
+  {t:"Notify prescribers of morphine &amp; norepinephrine stock-outs",c:"Communication",done:false,who:"Dr. Ahmed",due:"09:15"},
+  {t:"Run expiry check on refrigerated medications",c:"Inventory",done:false,who:"N. Rehman",due:"10:00"},
+  {t:"Counsel Fatima Al-Rashid on Metformin usage",c:"Counselling",done:false,who:"Dr. Ahmed",due:"10:30"},
+  {t:"Resolve CD discrepancy — Tramadol (second sign-off)",c:"Controls",done:false,who:"Dr. Ahmed",due:"11:00"},
+  {t:"Raise PO for amoxicillin &amp; vancomycin restock",c:"Admin",done:false,who:"H. Farooq",due:"13:00"},
+  {t:"Prepare afternoon handover notes",c:"Admin",done:false,who:"Dr. Ahmed",due:"14:30"},
+];
+function renderTasks(){
+  document.getElementById("tlist").innerHTML=tasks.map((t,i)=>`
+    <div class="ti">
+      <div class="chk ${t.done?"done":""}" onclick="toggleT(${i})">
+        ${t.done?`<svg width="9" height="9" viewBox="0 0 9 9"><polyline points="1,4.5 3.5,7 8,2" stroke="var(--success)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`:""}
+      </div>
+      <div style="flex:1">
+        <div class="tt ${t.done?"dt":""}">${t.t}</div>
+        <div class="tm"><span class="tcat">${t.c}</span>${t.who} · Due ${t.due}</div>
+      </div>
+    </div>`).join("");
 }
 renderTasks();
-
-function toggleTask(i){
-  tasks[i].done=!tasks[i].done;
-  renderTasks();
-  document.getElementById("m-d").textContent=31+tasks.filter(t=>t.done).length;
-}
-
-function sw(name,el){
+function toggleT(i){tasks[i].done=!tasks[i].done;renderTasks();}
+ 
+function sw(n,el){
   document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  document.getElementById(name).classList.add("active");
+  document.getElementById(n).classList.add("active");
   el.classList.add("active");
 }
+ 
+let tt;
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.innerHTML=msg;t.classList.add("show");
+  clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),4000);
+}
+ 
+document.getElementById("dov").addEventListener("click",e=>{if(e.target===e.currentTarget)closeDov();});
+document.getElementById("rov").addEventListener("click",e=>{if(e.target===e.currentTarget)closeRov();});
+updateM();
 </script>
 </body>
 </html>
